@@ -1,0 +1,171 @@
+substitutions:
+  devicename: esp32
+  upper_devicename: ESP32
+
+
+esphome:
+  name: esp32_test
+  platform: ESP32
+  board: esp-wrover-kit
+
+wifi:
+  ssid: "Elrond3"
+  password: !secret Wifi_Password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp32 Test Fallback Hotspot"
+    password: !secret AP_Password
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret OTA_Password
+
+ota:
+  password: !secret OTA_Password
+
+spi:
+  clk_pin: 18
+  mosi_pin: 23
+  miso_pin: 19
+  id: spi1
+
+i2c:
+  sda: 21
+  scl: 22
+  id: i2c_1
+  
+sensor:
+  - platform: wifi_signal
+    name: ${upper_devicename} Wifi
+  - platform: bme280
+    temperature:
+      name: ${upper_devicename} Temperature
+      id: test_temp
+      oversampling: 16x
+    pressure:
+      name: ${upper_devicename} Pressure
+      id: test_pres
+    humidity:
+      name: ${upper_devicename} Humidity
+      id: test_humid
+    address: 0x76
+    update_interval: 60s
+  - platform: bh1750
+    name: ${upper_devicename} light
+    id: test_ambi
+    update_interval: 30s
+    internal: true
+  - platform: ccs811
+    eco2:
+      name: ${upper_devicename} eCO2 Value
+      id: test_eco2
+    tvoc:
+      name: ${upper_devicename} Total Volatile Organic Compound
+      id: test_tvoc
+    temperature: test_temp
+    humidity: test_humid
+    update_interval: 60s
+
+switch:
+  - platform: gpio
+    name: "Red Led"
+    id: red_led
+    pin: 16
+    internal: true
+
+esp32_touch:
+  setup_mode: False
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: 2
+      mode: INPUT_PULLUP
+    name: "Touch Button T1"
+    id: 't1_touch_button'
+    filters:
+      - delayed_on: 100ms
+    on_press:
+          then:
+            - switch.toggle: 'red_led'
+  - platform: gpio
+    pin:
+      number: 34
+      mode: INPUT_PULLUP
+    name: "Touch Button T2"
+    id: 't2_touch_button'
+    filters:
+      - delayed_on: 100ms
+    on_press:
+          then:
+            - switch.toggle: 'red_led'
+  - platform: gpio
+    pin:
+      number: 4
+      mode: INPUT_PULLUP
+    name: "Touch Button T3"
+    id: 't3_touch_button'
+    filters:
+      - delayed_on: 100ms
+    on_press:
+          then:
+            - switch.toggle: 'red_led'
+  - platform: esp32_touch
+    name: "ESP32 Touch Pad 32"
+    pin: 32
+    threshold: 1000
+  - platform: esp32_touch
+    name: "ESP32 Touch Pad 33"
+    pin: 33
+    threshold: 1000
+   
+text_sensor:
+  - platform: homeassistant
+    name: "Title Song Sonos Joachim"
+    id: joachim_sonos_title
+    entity_id: sensor.media_player_title
+    internal: true
+  - platform: homeassistant
+    name: "Artist Song Sonos Joachim"
+    id: joachim_sonos_artist
+    entity_id: sensor.media_player_artist
+    internal: true
+  - platform: homeassistant
+    name: "State Sonos Joachim"
+    entity_id: sensor.media_player_state
+    id: joachim_sonos_state
+    #internal: true
+
+ 
+font:
+  - file: 'fonts/OpenSans-Light.ttf'
+    id: os10
+    size: 10
+  - file: 'fonts/OpenSans-Light.ttf'
+    id: os12
+    size: 12  
+
+display:
+  - platform: ssd1306_spi
+    model: "SSD1306 128x64"
+    cs_pin: 5
+    dc_pin: 25
+    reset_pin: 27 
+    lambda: |-
+      //it.print(0, 0, id(os10), "Hello World!");
+      it.printf(0, 5, id(os10), "T: %.1f°C", id(test_temp).state);
+      it.printf(0, 20, id(os10), "H: %.1f%%", id(test_humid).state);
+      it.printf(50, 5, id(os10), "P: %.1fhPA", id(test_pres).state);
+      it.printf(50, 20, id(os10), "eCO2: %.1fppm", id(test_eco2).state);
+      if (id(joachim_sonos_state).state == "on") {
+      it.printf(0, 35, id(os12), TextAlign::BASELINE_LEFT, "Art: %s", id(joachim_sonos_artist).state.c_str());
+      it.printf(0, 50, id(os12), TextAlign::BASELINE_LEFT, "Song: %s", id(joachim_sonos_title).state.c_str());
+      } else {
+      it.printf(0, 35, id(os12), TextAlign::BASELINE_LEFT, "Sonos Joachim is %s", id(joachim_sonos_state).state.c_str());
+      }
