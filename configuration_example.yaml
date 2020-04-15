@@ -1,0 +1,18 @@
+#Add this to your Home Assistant configuration.yaml in the Sensor section to create the template sensor that is used 
+#to display the Sonos status and Son Title and Artist if playing
+
+sensor: #do not include this line if you already have a sensor section
+    - platform: template
+      sensors:
+            media_player_title: #Links to the text sensor in your ESPHOME device yaml
+                entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control e.g. media_player.kitchen
+                value_template: '{{state_attr("media_player.your_sonos_mediaplayer_name_or_ID", "media_title")}}' #replace with your entity_id of the Sonos player you want to control
+                friendly_name: Sonos Player Song Title
+            media_player_artist: #Links to the text sensor in your ESPHOME device yaml
+                entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+                value_template: '{{state_attr("media_player.your_sonos_mediaplayer_name_or_ID")}}' #replace with your entity_id of the Sonos player you want to control
+                friendly_name: Sonos Player Song Artist
+            media_player_state: #Links to the text sensor in your ESPHOME device yaml
+                entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+                value_template: '{% if states("media_player.your_sonos_mediaplayer_name_or_ID") == "playing" %}on{% else %}off{% endif %}' #replace with your entity_id of the Sonos player you want to control
+                friendly_name: Sonos Player State
