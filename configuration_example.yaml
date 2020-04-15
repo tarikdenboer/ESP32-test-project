@@ -1,7 +1,7 @@
 #Add this to your Home Assistant configuration.yaml in the Sensor section to create the template sensor that is used 
-#to display the Sonos status and Son Title and Artist if playing
+#to display the Sonos status and Song Title and Artist if playing
 
-sensor: #do not include this line if you already have a sensor section
+sensor: #do not include this line if you already have a sensor section in you Home Assistant configuration.yaml 
     - platform: template
       sensors:
             media_player_title: #Links to the text sensor in your ESPHOME device yaml
