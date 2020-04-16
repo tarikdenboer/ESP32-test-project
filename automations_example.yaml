@@ -1,0 +1,143 @@
+#Add this in you Home Assistant automations.yaml and change 
+#the values as indicated though the UI or rework the file to be included in 
+#the Automations section in your Home Assistant configurations.yaml
+
+
+- id: '1586264238683' #unique automation ID to be able to edit from the Automation editor (Home Assistant UI)
+  alias: Sonos On
+  description: Turn on the Sonos from the ESP32
+  trigger: #physical touch button 1 is 'pressed'
+  - device_id: 5c7ad8bfa57847aab32d31e192cc99e1 #replace with device ID of your ESP32 'Sensor'
+    domain: binary_sensor
+    entity_id: binary_sensor.touch_button_t1
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0.2 #check if pressed for some time (0.2 seconds) to avoid unintended actions
+    platform: device
+    type: turned_on
+  condition: #check if the Sonos player is paused (not playing)
+  - condition: device
+    device_id: bd8d32a9bab34000870c67d3f6c7d218 #Device ID of your Sonos player you want to control
+    domain: media_player
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    type: is_paused
+  action: #if paused change state to playing - player will resume where stopped
+  - data: {}
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    service: media_player.media_play
+- id: '1586441047247' #unique automation ID to be able to edit from the Automation editor (Home Assistant UI)
+  alias: Sonos Off
+  description: Turn off the Sonos from the ESP32
+  trigger: #physical touch button 1 is 'pressed'
+  - device_id: 5c7ad8bfa57847aab32d31e192cc99e1 #replace with device ID of your ESP32 'Sensor'
+    domain: binary_sensor
+    entity_id: binary_sensor.touch_button_t1
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0.2
+    platform: device
+    type: turned_on
+  condition: #check if the Sonos player is playing
+  - condition: device
+    device_id: bd8d32a9bab34000870c67d3f6c7d218 #replace with device ID of your Sonos player you want to control/check status of
+    domain: media_player
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    type: is_playing
+  action: #player will be paused
+  - data: {}
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    service: media_player.media_pause
+- id: '1586441242262' #unique automation ID to be able to edit from the Automation editor (Home Assistant UI)
+  alias: Sonos next track
+  description: Skip to next track on Sonos from ESP32
+  trigger: #physical touch button 2 is 'pressed'
+  - device_id: 5c7ad8bfa57847aab32d31e192cc99e1 #replace with device ID of your ESP32 'Sensor'
+    domain: binary_sensor
+    entity_id: binary_sensor.touch_button_t2
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0.5
+    platform: device
+    type: turned_on
+  condition: #check if the Sonos player is playing
+  - condition: device
+    device_id: bd8d32a9bab34000870c67d3f6c7d218 #Device ID of your Sonos player you want to control
+    domain: media_player
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    type: is_playing
+  action: #skip to next track
+  - data: {}
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    service: media_player.media_next_track
+- id: '1586441555307' #unique automation ID to be able to edit from the Automation editor (Home Assistant UI)
+  alias: Sonos previous track
+  description: Skip to previous track on Sonos from ESP32
+  trigger: #physical touch button 3 is 'pressed'
+  - device_id: 5c7ad8bfa57847aab32d31e192cc99e1 #replace with device ID of your ESP32 'Sensor'
+    domain: binary_sensor
+    entity_id: binary_sensor.touch_button_t3
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0.5
+    platform: device
+    type: turned_on
+  condition: #check if the Sonos player is playing
+  - condition: device
+    device_id: bd8d32a9bab34000870c67d3f6c7d218 #Device ID of your Sonos player you want to control
+    domain: media_player
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    type: is_playing
+  action: #skip to previous track
+  - data: {}
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    service: media_player.media_previous_track
+- id: '1586442519374' #unique automation ID to be able to edit from the Automation editor (Home Assistant UI)
+  alias: Sonos turn up volume
+  description: Turn up the volume of Sonos ESP32
+  trigger: #'open wire' touch sensor 1 is touched
+  - device_id: 5c7ad8bfa57847aab32d31e192cc99e1 #replace with device ID of your ESP32 'Sensor'
+    domain: binary_sensor
+    entity_id: binary_sensor.esp32_touch_pad_33 
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0.2
+    platform: device
+    type: turned_on
+  condition: #check if the Sonos player is playing
+  - condition: device
+    device_id: bd8d32a9bab34000870c67d3f6c7d218 #Device ID of your Sonos player you want to control
+    domain: media_player
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    type: is_playing
+  action: #increase the volume
+  - data: {}
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    service: media_player.volume_up
+- id: '1586445168290' #unique automation ID to be able to edit from the Automation editor (Home Assistant UI)
+  alias: Sonos turn down volume
+  description: Turn down the volume on the Sonos from ESP32
+  trigger: #'open wire' touch sensor 2 is touched
+  - device_id: 5c7ad8bfa57847aab32d31e192cc99e1 ##replace with device ID of your ESP32 'Sensor'
+    domain: binary_sensor
+    entity_id: binary_sensor.esp32_touch_pad_32
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0.2
+    platform: device
+    type: turned_on
+  condition: #check if Sonos player is playing
+  - condition: device
+    device_id: bd8d32a9bab34000870c67d3f6c7d218 #Device ID of your Sonos player you want to check status of
+    domain: media_player
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    type: is_playing
+  action: #decrease the volume
+  - data: {}
+    entity_id: media_player.your_sonos_mediaplayer_name_or_ID #replace with your entity_id of the Sonos player you want to control
+    service: media_player.volume_down
