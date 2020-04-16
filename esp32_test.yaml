@@ -9,13 +9,13 @@ esphome:
   board: esp-wrover-kit
 
 wifi:
-  ssid: "Elrond3"
-  password: !secret Wifi_Password
+  ssid: "Your_SSID"
+  password: !secret Wifi_Password #Assumes the use of the ESPHome sercrets.yaml
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Esp32 Test Fallback Hotspot"
-    password: !secret AP_Password
+    password: !secret AP_Password #Assumes the use of the ESPHome sercrets.yaml
 
 captive_portal:
 
@@ -24,26 +24,29 @@ logger:
 
 # Enable Home Assistant API
 api:
-  password: !secret OTA_Password
+  password: !secret OTA_Password #Assumes the use of the ESPHome sercrets.yaml
 
 ota:
-  password: !secret OTA_Password
+  password: !secret OTA_Password #Assumes the use of the ESPHome sercrets.yaml
 
-spi:
+spi: #define the SPI interface on the ESP32
   clk_pin: 18
   mosi_pin: 23
   miso_pin: 19
   id: spi1
 
-i2c:
+i2c: #define the I2C interface on the ESP32
   sda: 21
   scl: 22
   id: i2c_1
+
+esp32_touch: #define the touch interface on the ESP32 
+  setup_mode: False
   
 sensor:
   - platform: wifi_signal
     name: ${upper_devicename} Wifi
-  - platform: bme280
+  - platform: bme280 #temperature-Presure and Humidity sensor
     temperature:
       name: ${upper_devicename} Temperature
       id: test_temp
@@ -56,12 +59,12 @@ sensor:
       id: test_humid
     address: 0x76
     update_interval: 60s
-  - platform: bh1750
+  - platform: bh1750 #Ambient light sensor
     name: ${upper_devicename} light
     id: test_ambi
     update_interval: 30s
     internal: true
-  - platform: ccs811
+  - platform: ccs811 #eCO2 and tVOC sensor
     eco2:
       name: ${upper_devicename} eCO2 Value
       id: test_eco2
@@ -72,18 +75,9 @@ sensor:
     humidity: test_humid
     update_interval: 60s
 
-switch:
-  - platform: gpio
-    name: "Red Led"
-    id: red_led
-    pin: 16
-    internal: true
-
-esp32_touch:
-  setup_mode: False
 
 binary_sensor:
-  - platform: gpio
+  - platform: gpio #Physical touch button 1 - Sonos On/Off
     pin:
       number: 2
       mode: INPUT_PULLUP
@@ -91,10 +85,7 @@ binary_sensor:
     id: 't1_touch_button'
     filters:
       - delayed_on: 100ms
-    on_press:
-          then:
-            - switch.toggle: 'red_led'
-  - platform: gpio
+  - platform: gpio #Physical touch button 2 - Sonos Next track
     pin:
       number: 34
       mode: INPUT_PULLUP
@@ -102,48 +93,42 @@ binary_sensor:
     id: 't2_touch_button'
     filters:
       - delayed_on: 100ms
-    on_press:
-          then:
-            - switch.toggle: 'red_led'
   - platform: gpio
     pin:
-      number: 4
+      number: 4 #Physical touch button 3 - Sonos Previous track
       mode: INPUT_PULLUP
     name: "Touch Button T3"
     id: 't3_touch_button'
     filters:
       - delayed_on: 100ms
-    on_press:
-          then:
-            - switch.toggle: 'red_led'
-  - platform: esp32_touch
+  - platform: esp32_touch #Captive touch though "open wire" - Sonos volume up
     name: "ESP32 Touch Pad 32"
     pin: 32
     threshold: 1000
-  - platform: esp32_touch
+  - platform: esp32_touch #Captive touch though "open wire" - Sonos volume down
     name: "ESP32 Touch Pad 33"
     pin: 33
     threshold: 1000
    
-text_sensor:
+text_sensor: #Sensor to get Sonos data from Home Assistant
   - platform: homeassistant
     name: "Title Song Sonos Joachim"
-    id: joachim_sonos_title
-    entity_id: sensor.media_player_title
+    id: sonos_player_title
+    entity_id: sensor.media_player_title #Links to the template sensor in your Home Assistant configuration.yaml
     internal: true
   - platform: homeassistant
     name: "Artist Song Sonos Joachim"
-    id: joachim_sonos_artist
-    entity_id: sensor.media_player_artist
+    id: sonos_player_artist
+    entity_id: sensor.media_player_artist #Links to the template sensor in your Home Assistant configuration.yaml
     internal: true
   - platform: homeassistant
     name: "State Sonos Joachim"
-    entity_id: sensor.media_player_state
-    id: joachim_sonos_state
-    #internal: true
+    entity_id: sensor.media_player_state #Links to the template sensor in your Home Assistant configuration.yaml
+    id: sonos_player_state
+    internal: true
 
  
-font:
+font: #make sure you have these fonts included in the ESPhome directory. This font can be downloaded from: https://fonts.google.com/specimen/Open+Sans
   - file: 'fonts/OpenSans-Light.ttf'
     id: os10
     size: 10
@@ -152,20 +137,19 @@ font:
     size: 12  
 
 display:
-  - platform: ssd1306_spi
+  - platform: ssd1306_spi #SPI based OLED display
     model: "SSD1306 128x64"
     cs_pin: 5
     dc_pin: 25
     reset_pin: 27 
     lambda: |-
-      //it.print(0, 0, id(os10), "Hello World!");
       it.printf(0, 5, id(os10), "T: %.1f°C", id(test_temp).state);
       it.printf(0, 20, id(os10), "H: %.1f%%", id(test_humid).state);
       it.printf(50, 5, id(os10), "P: %.1fhPA", id(test_pres).state);
       it.printf(50, 20, id(os10), "eCO2: %.1fppm", id(test_eco2).state);
-      if (id(joachim_sonos_state).state == "on") {
-      it.printf(0, 35, id(os12), TextAlign::BASELINE_LEFT, "Art: %s", id(joachim_sonos_artist).state.c_str());
-      it.printf(0, 50, id(os12), TextAlign::BASELINE_LEFT, "Song: %s", id(joachim_sonos_title).state.c_str());
+      if (id(sonos_player_state).state == "on") {
+      it.printf(0, 35, id(os12), TextAlign::BASELINE_LEFT, "Art: %s", id(sonos_player_artist).state.c_str());
+      it.printf(0, 50, id(os12), TextAlign::BASELINE_LEFT, "Song: %s", id(sonos_player_title).state.c_str());
       } else {
-      it.printf(0, 35, id(os12), TextAlign::BASELINE_LEFT, "Sonos Joachim is %s", id(joachim_sonos_state).state.c_str());
+      it.printf(0, 35, id(os12), TextAlign::BASELINE_LEFT, "Sonos Player is %s", id(sonos_player_state).state.c_str());
       }
