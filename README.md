@@ -22,6 +22,10 @@ The 3 physical touch buttons used to control the Sonos sent their states to Home
 
 ![Photo of prototype](https://raw.githubusercontent.com/tarikdenboer/ESP32-test-project/master/Images/ESP32_Test_Sensor_image.JPG)
 
+The sensor values of the ESP32 test multi sensor ar displayed in a Home Assistant Lovelace Dashboard card:
+
+![Screenshot of HA Lovelace card](https://raw.githubusercontent.com/tarikdenboer/ESP32-test-project/master/Images/ESP32_test_lovelace_card.png)
+
 # ESP 32 project pin layout
 
 ## Elements:
