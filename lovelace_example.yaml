@@ -1,0 +1,88 @@
+#An example configuration for a card showing the sensor values of the ESP32 Test sensor and 
+#the Sonos state and currently playing Artist and Song Title
+#The card uses 2 custom cart types: 
+#   1. custom:mini-graph-card : https://github.com/kalkih/mini-graph-card
+#   2. custom:button-card : https://github.com/custom-cards/button-card
+
+type: vertical-stack
+cards:
+  - cards:
+      - entities:
+          - sensor.esp32_temperature
+        font_size: 75
+        line_width: 8
+        type: 'custom:mini-graph-card'
+      - entities:
+          - sensor.esp32_humidity
+        font_size: 75
+        line_color: '#3498db'
+        line_width: 8
+        type: 'custom:mini-graph-card'
+      - entities:
+          - sensor.esp32_pressure
+        font_size: 75
+        line_color: '#f1c40f'
+        line_width: 8
+        type: 'custom:mini-graph-card'
+    type: horizontal-stack
+  - cards:
+      - entities:
+          - sensor.esp32_eco2_value
+        font_size: 75
+        line_color: '#e74c3c'
+        line_width: 6
+        type: 'custom:mini-graph-card'
+      - entities:
+          - sensor.esp32_total_volatile_organic_compound
+        font_size: 75
+        line_color: '#e74c3c'
+        line_width: 6
+        type: 'custom:mini-graph-card'
+    type: horizontal-stack
+  - color_thresholds:
+      - color: '#585858'
+        value: 0
+      - color: '#C0C0C0'
+        value: 10
+      - color: '#F5F5F5'
+        value: 60
+    entities:
+      - sensor.esp32_light
+    font_size: 75
+    height: 75
+    line_width: 3
+    type: 'custom:mini-graph-card'
+  - color: '#3498db'
+    entity: media_player.joachim
+    icon: 'mdi:speaker'
+    layout: icon_name_state2nd
+    name: Sonos ON/OFF
+    show_state: true
+    styles:
+      card:
+        - height: 100px
+    tap_action:
+      action: call-service
+      service: media_player.media_play_pause
+      service_data:
+        entity_id: media_player.joachim
+    type: 'custom:button-card'
+  - card:
+      entity: sensor.media_player_artist
+      icon: 'mdi:music'
+      name: Artist
+      type: entity
+    conditions:
+      - entity: media_player.joachim
+        state: playing
+    type: conditional
+  - card:
+      entity: sensor.media_player_title
+      icon: 'mdi:music'
+      name: Song Title
+      type: entity
+    conditions:
+      - entity: media_player.joachim
+        state: playing
+    type: conditional
+
